@@ -1,0 +1,38 @@
+{
+  "images" : [
+    {
+      "filename" : "A simple and modern logo featuring both Apple and Android logos for an app that transfers contacts from iPhone to Android 2.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "A simple and modern logo featuring both Apple and Android logos for an app that transfers contacts from iPhone to Android 1.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "tinted"
+        }
+      ],
+      "filename" : "A simple and modern logo featuring both Apple and Android logos for an app that transfers contacts from iPhone to Android.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
