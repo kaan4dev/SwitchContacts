@@ -1,9 +1,11 @@
 import SwiftUI
 
-struct ContentView: View {
+struct ContentView: View
+{
     @State private var selectedTab = 1
 
-    var body: some View {
+    var body: some View
+    {
         MainTabView(selectedTab: $selectedTab)
             .background(
                 Color("MainBackgroundColor")
@@ -12,6 +14,7 @@ struct ContentView: View {
     }
 }
 
-#Preview {
+#Preview
+{
     ContentView()
 }

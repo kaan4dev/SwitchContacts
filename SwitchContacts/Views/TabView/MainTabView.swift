@@ -1,26 +1,32 @@
 import SwiftUI
 
-struct MainTabView: View {
+struct MainTabView: View
+{
     @Binding var selectedTab: Int
 
-    var body: some View {
-        TabView(selection: $selectedTab) {
+    var body: some View
+    {
+        TabView(selection: $selectedTab)
+        {
             StepsView()
-                .tabItem {
+                .tabItem
+                {
                     Image(systemName: "list.number")
                     Text("Steps")
                 }
                 .tag(0)
             
             HomeView()
-                .tabItem {
+                .tabItem
+                {
                     Image(systemName: "house")
                     Text("Home")
                 }
                 .tag(1)
             
             SettingsView()
-                .tabItem {
+                .tabItem
+                {
                     Image(systemName: "gear")
                     Text("Settings")
                 }
@@ -29,6 +35,7 @@ struct MainTabView: View {
     }
 }
 
-#Preview {
+#Preview
+{
     MainTabView(selectedTab: .constant(1))
 }
