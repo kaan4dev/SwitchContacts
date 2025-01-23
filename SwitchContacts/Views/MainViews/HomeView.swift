@@ -10,11 +10,11 @@ struct HomeView: View
             {
                 Text("Switch Contacts")
                     .font(.title)
-                    .foregroundColor(Color("MainTextColor"))
+                    .foregroundColor(Color.colors.MainTextColor)
                 
                 Image(systemName: "point.topright.arrow.triangle.backward.to.point.bottomleft.scurvepath.fill")
                     .imageScale(.large)
-                    .foregroundColor(Color("SecondaryTextColor"))
+                    .foregroundColor(Color.colors.SecondaryTextColor)
                 
                 Spacer()
                 
@@ -32,29 +32,28 @@ struct HomeView: View
                                 .resizable()
                                 .frame(width: 75, height: 100)
                                 .imageScale(.large)
-                                .foregroundColor(Color("MainTextColor"))
+                                .foregroundColor(Color.colors.MainTextColor)
                             
                             Text("Dönüştür")
                                 .imageScale(.large)
-                                .foregroundColor(Color("SecondaryTextColor"))
+                                .foregroundColor(Color.colors.SecondaryTextColor)
                         }
                     }
                     
                     Button
                     {
-    
+                        
                     }
                     label:
                     {
                         Text("Aktarma Adımları")
                             .imageScale(.large)
-                            .foregroundColor(Color("ButtonTextColor"))
+                            .foregroundColor(Color.colors.ButtonTextColor)
                             .padding(.horizontal, 20)
                             .padding(.vertical, 8)
                     }
-                    .background(Color("ButtonBackgroundColor"))
+                    .background(Color.colors.ButtonBackgroundColor)
                     .cornerRadius(30)
-                    .tint(Color("ButtonBackgroundColor"))
                 }
                 
                 Spacer()
