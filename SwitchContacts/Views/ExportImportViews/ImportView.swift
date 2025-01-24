@@ -1,28 +1,38 @@
 import SwiftUI
 
-struct ImportView: View
+struct ImportView: View 
 {
-    var body: some View
+    @Binding var showingSteps: Bool
+
+    var body: some View 
     {
-        VStack(spacing: 90)
+        VStack(spacing: 90) 
         {
-            Button {} label:
+            Button 
             {
-                VStack
+                
+            } 
+            label: 
+            {
+                VStack 
                 {
                     Image(systemName: "square.and.arrow.down")
                         .resizable()
                         .frame(width: 75, height: 100)
                         .imageScale(.large)
                         .foregroundColor(Color.colors.MainTextColor)
-                    
+
                     Text("İçe Aktar")
                         .imageScale(.large)
                         .foregroundColor(Color.colors.SecondaryTextColor)
                 }
             }
-            
-            Button {} label:
+
+            Button 
+            {
+                showingSteps = true
+            } 
+            label: 
             {
                 Text("Aktarma Adımları")
                     .imageScale(.large)
@@ -37,7 +47,7 @@ struct ImportView: View
     }
 }
 
-#Preview
+#Preview 
 {
-    ImportView()
+    ImportView(showingSteps: .constant(false))
 }

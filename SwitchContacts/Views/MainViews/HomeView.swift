@@ -1,14 +1,13 @@
 import SwiftUI
-import Contacts
-import UniformTypeIdentifiers
 
-struct HomeView: View
+struct HomeView: View 
 {
     @State private var selectedTab = 0
+    @State private var showingSteps = false
     
-    var body: some View
+    var body: some View 
     {
-        VStack()
+        VStack 
         {
             Text("Switch Contacts")
                 .font(.title)
@@ -18,97 +17,36 @@ struct HomeView: View
                 .imageScale(.large)
                 .foregroundColor(Color.colors.SecondaryTextColor)
             
+            Divider()
+                .background(Color.colors.MainTextColor)
+            
             ExportImportTabView(selectedTab: $selectedTab)
                 .background(Color.colors.SplashBackgroundColor.opacity(0.2))
             
+            Divider()
+                .background(Color.colors.MainTextColor)
+            
             Spacer()
             
-            if selectedTab == 0
+            if selectedTab == 0 
             {
-                ExportView()
-            }
-            else
+                ExportView(showingSteps: $showingSteps)
+            } 
+            else 
             {
-                ImportView()
+                ImportView(showingSteps: $showingSteps)
             }
             
             Spacer()
         }
-    }
-}
-
-struct ExportImportTabView: View
-{
-    @Binding var selectedTab: Int
-    
-    var body: some View
-    {
-        HStack(spacing: 0)
+        .sheet(isPresented: $showingSteps) 
         {
-            Button
-            {
-                selectedTab = 0
-            }
-            label:
-            {
-                VStack
-                {
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Dışa Aktar")
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(selectedTab == 0 ? Color.colors.ButtonBackgroundColor.opacity(0.3) : Color.clear)
-            }
-            
-            Button
-            {
-                selectedTab = 1
-            }
-            label:
-            {
-                VStack
-                {
-                    Image(systemName: "square.and.arrow.down")
-                    Text("İçe Aktar")
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(selectedTab == 1 ? Color.colors.ButtonBackgroundColor.opacity(0.3) : Color.clear)
-            }
+            ExportStepsView()
         }
-        .foregroundColor(Color.colors.MainTextColor)
     }
 }
 
-
-
-struct ContactsDocument: FileDocument
-{
-    var contactData: Data
-    var fileType: UTType
-    
-    static var readableContentTypes: [UTType] { [.commaSeparatedText, .vCard] }
-    
-    init(contactData: Data, fileType: UTType)
-    {
-        self.contactData = contactData
-        self.fileType = fileType
-    }
-    
-    init(configuration: ReadConfiguration) throws
-    {
-        self.contactData = Data()
-        self.fileType = .commaSeparatedText
-    }
-    
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper
-    {
-        return FileWrapper(regularFileWithContents: contactData)
-    }
-}
-
-#Preview
+#Preview 
 {
     HomeView()
 }

@@ -8,7 +8,7 @@ struct MainTabView: View
     {
         TabView(selection: $selectedTab)
         {
-            StepsView()
+            ExportStepsView()
                 .tabItem
                 {
                     Image(systemName: "list.number")
