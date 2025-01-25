@@ -34,7 +34,7 @@ struct ImportView: View
             } 
             label: 
             {
-                Text("Aktarma Adımları")
+                Text("İçe Aktarma Adımları")
                     .imageScale(.large)
                     .foregroundColor(Color.colors.ButtonTextColor)
                     .padding(.horizontal, 20)

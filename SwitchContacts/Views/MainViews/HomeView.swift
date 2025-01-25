@@ -1,9 +1,16 @@
 import SwiftUI
 
+enum StepViewType 
+{
+    case export
+    case `import`
+}
+
 struct HomeView: View 
 {
     @State private var selectedTab = 0
     @State private var showingSteps = false
+    @State private var stepViewType: StepViewType = .export
     
     var body: some View 
     {
@@ -28,20 +35,39 @@ struct HomeView: View
             
             Spacer()
             
-            if selectedTab == 0 
+             if selectedTab == 0 
             {
                 ExportView(showingSteps: $showingSteps)
+                    .onChange(of: showingSteps) { oldValue, newValue in
+                        if newValue 
+                        {
+                            stepViewType = .export
+                        }
+                    }
             } 
             else 
             {
                 ImportView(showingSteps: $showingSteps)
+                    .onChange(of: showingSteps) { oldValue, newValue in
+                        if newValue 
+                        {
+                            stepViewType = .import
+                        }
+                    }
             }
             
             Spacer()
         }
         .sheet(isPresented: $showingSteps) 
         {
-            ExportStepsView()
+            if stepViewType == .export 
+            {
+                ExportStepsView()
+            } 
+            else 
+            {
+                ImportStepsView()
+            }
         }
     }
 }

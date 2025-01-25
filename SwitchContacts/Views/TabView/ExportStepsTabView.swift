@@ -1,31 +1,6 @@
 import SwiftUI
 
-struct ExportStepsView: View
-{
-    @State private var selectedTab = 0
-    
-    var body: some View
-    {
-        VStack
-        {
-            CustomTabView(selectedTab: $selectedTab)
-                .padding(.vertical)
-            
-            if selectedTab == 0
-            {
-                GoogleStepsView()
-            }
-            else
-            {
-                DefaultStepsView()
-            }
-            
-            Spacer()
-        }
-    }
-}
-
-struct CustomTabView: View
+struct ExportStepsTabView: View
 {
     @Binding var selectedTab: Int
     
@@ -95,7 +70,7 @@ struct GoogleStepsView: View
     }
 }
 
-struct DefaultStepsView: View
+struct LocalPhoneStepsView: View
 {
     var body: some View
     {
@@ -115,9 +90,4 @@ struct DefaultStepsView: View
                 .padding()
         }
     }
-}
-
-#Preview
-{
-    ExportStepsView()
 }

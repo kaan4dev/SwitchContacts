@@ -51,7 +51,7 @@ struct ExportView: View
                 } 
                 label: 
                 {
-                    Text("Aktarma Adımları")
+                    Text("Dışa Aktarma Adımları")
                         .imageScale(.large)
                         .foregroundColor(Color.colors.ButtonTextColor)
                         .padding(.horizontal, 20)
