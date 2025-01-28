@@ -27,17 +27,8 @@ struct ImportStepsView: View
                 Spacer()
             }
             
-            // Header
-            Text("Switch Contacts")
-                .font(.title)
-                .foregroundColor(Color.colors.MainTextColor)
+            LogoAndNameView()
             
-            Image(systemName: "point.topright.arrow.triangle.backward.to.point.bottomleft.scurvepath.fill")
-                .imageScale(.large)
-                .foregroundColor(Color.colors.SecondaryTextColor)
-            
-            Divider()
-                .background(Color.colors.MainTextColor)
             
             ImportStepsTabView(selectedTab: $selectedTab)
             
@@ -199,17 +190,36 @@ struct ImportStepsSheetView: View
                 Spacer()
             }
             
-            ImportSheetStepsTabView(selectedTab: $selectedTab)
+            ImportStepsTabView(selectedTab: $selectedTab)
             
-            if selectedTab == 0
+            TabView(selection: $selectedTab)
             {
-                GoogleStepsView()
+                ScrollView
+                {
+                    CSVStepsContentView()
+                }
+                .tag(0)
+                
+                ScrollView
+                {
+                    VCFStepsContentView()
+                }
+                .tag(1)
+                
+                ScrollView
+                {
+                    PDFStepsContentView()
+                }
+                .tag(2)
+                
+                ScrollView
+                {
+                    ExcelStepsContentView()
+                }
+                .tag(3)
             }
-            else
-            {
-                LocalPhoneStepsView()
-            }
-            Spacer()
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .animation(.easeInOut, value: selectedTab)
         }
     }
 }
