@@ -1,20 +1,21 @@
 import SwiftUI
 
-struct ImportView: View 
+struct ImportView: View
 {
     @Binding var showingSteps: Bool
+    @State private var showAdvancedImportView = false
 
-    var body: some View 
+    var body: some View
     {
-        VStack(spacing: 90) 
+        VStack(spacing: 90)
         {
-            Button 
+            Button
             {
-                
-            } 
-            label: 
+                showAdvancedImportView = true
+            }
+            label:
             {
-                VStack 
+                VStack
                 {
                     Image(systemName: "square.and.arrow.down")
                         .resizable()
@@ -28,11 +29,11 @@ struct ImportView: View
                 }
             }
 
-            Button 
+            Button
             {
                 showingSteps = true
-            } 
-            label: 
+            }
+            label:
             {
                 Text("İçe Aktarma Adımları")
                     .imageScale(.large)
@@ -44,10 +45,14 @@ struct ImportView: View
             .cornerRadius(30)
         }
         .padding()
+        .sheet(isPresented: $showAdvancedImportView)
+        {
+            AdvancedImportView()
+        }
     }
 }
 
-#Preview 
+#Preview
 {
     ImportView(showingSteps: .constant(false))
 }

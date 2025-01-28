@@ -175,7 +175,7 @@ struct ImportStepsSheetView: View
         {
             HStack
             {
-                CloseButtonView()
+                DismissButtonView()
                 .padding(.leading, 16)
                 Spacer()
             }

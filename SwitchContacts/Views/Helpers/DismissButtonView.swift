@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct CloseButtonView: View
+struct DismissButtonView: View
 {
     @Environment(\.dismiss) private var dismiss
     
@@ -24,5 +24,5 @@ struct CloseButtonView: View
 
 #Preview
 {
-    CloseButtonView()
+    DismissButtonView()
 }

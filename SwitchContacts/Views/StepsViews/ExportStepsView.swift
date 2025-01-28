@@ -11,7 +11,7 @@ struct ExportStepsView: View
         {
             HStack
             {
-                CloseButtonView()
+                DismissButtonView()
                 .padding(.leading, 16)
                 Spacer()
             }
@@ -55,7 +55,7 @@ struct ExportStepsSheetView: View
         {
             HStack
             {
-                CloseButtonView()
+                DismissButtonView()
                 .padding(.leading, 16)
                 Spacer()
             }
