@@ -89,8 +89,9 @@ struct ExportView: View
             contentType: exportFileType,
             defaultFilename: "contacts"
         ) 
-        { result in
-            switch result 
+        {
+            result in
+            switch result
             {
                 case .success:
                     alertMessage = "Kişiler başarıyla dışa aktarıldı!"

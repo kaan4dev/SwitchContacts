@@ -48,6 +48,77 @@ struct ExportStepsTabView: View
     }
 }
 
+struct ExportSheetStepsTabView: View
+{
+    @Binding var selectedTab: Int
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View
+    {
+        VStack
+        {
+            HStack
+            {
+                Button
+                {
+                    dismiss()
+                }
+                label:
+                {
+                    Image(systemName: "xmark.circle")
+                        .resizable()
+                        .frame(width: 25, height: 25)
+                        .foregroundColor(Color.colors.MainTextColor)
+                        
+                }
+                .padding(.leading, 16)
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
+            HStack(spacing: 0)
+            {
+                Button
+                {
+                    selectedTab = 0
+                }
+                label:
+                {
+                    VStack
+                    {
+                        Image("googleContactsIcon")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                        Text("Google Kişiler")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(selectedTab == 0 ? Color.colors.ButtonBackgroundColor.opacity(0.2) : Color.clear)
+                }
+                
+                Button
+                {
+                    selectedTab = 1
+                }
+                label:
+                {
+                    VStack
+                    {
+                        Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                        Text("Varsayılan Rehber")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(selectedTab == 1 ? Color.colors.ButtonBackgroundColor.opacity(0.2) : Color.clear)
+                }
+            }
+        }
+        .foregroundColor(Color.colors.MainTextColor)
+    }
+}
+
 struct GoogleStepsView: View
 {
     var body: some View
@@ -90,4 +161,10 @@ struct LocalPhoneStepsView: View
                 .padding()
         }
     }
+}
+
+#Preview
+{
+    @Previewable @State var selectedTab: Int = 1
+    return ExportSheetStepsTabView(selectedTab: $selectedTab)
 }

@@ -25,7 +25,37 @@ struct ExportStepsView: View
     }
 }
 
+struct ExportStepsSheetView: View
+{
+    @State private var selectedTab = 0
+    
+    var body: some View
+    {
+        
+            VStack
+            {
+                ExportSheetStepsTabView(selectedTab: $selectedTab)
+                    .padding(.vertical)
+                
+                if selectedTab == 0
+                {
+                    GoogleStepsView()
+                }
+                else
+                {
+                    LocalPhoneStepsView()
+                }
+                
+                Spacer()
+            }
+        
+    }
+}
+
 #Preview
 {
-    ExportStepsView()
+    @Previewable @State var selectedTab: Int = 1
+    
+    
+    ExportSheetStepsTabView(selectedTab: $selectedTab)
 }
