@@ -9,20 +9,9 @@ struct ExportStepsView: View
     {
         VStack(spacing: 10)
         {
-            // Close Button
             HStack
             {
-                Button
-                {
-                    dismiss()
-                }
-                label:
-                {
-                    Image(systemName: "xmark.circle")
-                        .resizable()
-                        .frame(width: 25, height: 25)
-                        .foregroundColor(Color.colors.MainTextColor)
-                }
+                CloseButtonView()
                 .padding(.leading, 16)
                 Spacer()
             }
@@ -34,7 +23,6 @@ struct ExportStepsView: View
             Divider()
                 .background(Color.colors.MainTextColor)
             
-            // TabView ile sekme içerikleri
             TabView(selection: $selectedTab)
             {
                 ScrollView
@@ -65,20 +53,9 @@ struct ExportStepsSheetView: View
     {
         VStack(spacing: 10)
         {
-            // Close Button
             HStack
             {
-                Button
-                {
-                    dismiss()
-                }
-                label:
-                {
-                    Image(systemName: "xmark.circle")
-                        .resizable()
-                        .frame(width: 25, height: 25)
-                        .foregroundColor(Color.colors.MainTextColor)
-                }
+                CloseButtonView()
                 .padding(.leading, 16)
                 Spacer()
             }
@@ -88,7 +65,6 @@ struct ExportStepsSheetView: View
             Divider()
                 .background(Color.colors.MainTextColor)
             
-            // TabView ile sekme içerikleri
             TabView(selection: $selectedTab)
             {
                 ScrollView

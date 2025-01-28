@@ -48,51 +48,6 @@ struct ExportStepsTabView: View
     }
 }
 
-
-struct GoogleStepsView: View
-{
-    var body: some View
-    {
-        VStack(spacing: 20)
-        {
-            Image("googleContactsIcon")
-                .resizable()
-                .frame(width: 100, height: 100)
-            
-            Text("Google Kişiler Adımları")
-                .font(.title2)
-                .foregroundColor(Color.colors.MainTextColor)
-            
-            Text("1. Google Kişiler'e gidin\n2. Kişileri dışa aktarın\n3. CSV dosyasını seçin\n4. İndirilen dosyayı uygulamamıza aktarın")
-                .multilineTextAlignment(.leading)
-                .foregroundColor(Color.colors.SecondaryTextColor)
-                .padding()
-        }
-    }
-}
-
-struct LocalPhoneStepsView: View
-{
-    var body: some View
-    {
-        VStack(spacing: 20)
-        {
-            Image(systemName: "person.crop.circle.fill")
-                .resizable()
-                .frame(width: 100, height: 100)
-            
-            Text("Varsayılan Rehber Adımları")
-                .font(.title2)
-                .foregroundColor(Color.colors.MainTextColor)
-            
-            Text("1. Telefon ayarlarına gidin\n2. Kişiler bölümünü açın\n3. Tüm kişileri seçin\n4. Dışa aktarma seçeneğini kullanın")
-                .multilineTextAlignment(.leading)
-                .foregroundColor(Color.colors.SecondaryTextColor)
-                .padding()
-        }
-    }
-}
-
 #Preview
 {
     ExportStepsTabView(selectedTab: .constant(0))

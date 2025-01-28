@@ -1,73 +1,51 @@
 import SwiftUI
+import Foundation
 
-struct ImportStepsView: View
+struct GoogleStepsView: View
 {
-    @State private var selectedTab = 0
-    @Environment(\.dismiss) private var dismiss
-    
     var body: some View
     {
-        VStack(spacing: 10)
+        VStack(spacing: 20)
         {
-            // Close Button
-            HStack
-            {
-                Button
-                {
-                    dismiss()
-                }
-                label:
-                {
-                    Image(systemName: "xmark.circle")
-                        .resizable()
-                        .frame(width: 25, height: 25)
-                        .foregroundColor(Color.colors.MainTextColor)
-                }
-                .padding(.leading, 16)
-                Spacer()
-            }
+            Image("googleContactsIcon")
+                .resizable()
+                .frame(width: 100, height: 100)
             
-            LogoAndNameView()
+            Text("Google Kişiler Adımları")
+                .font(.title2)
+                .foregroundColor(Color.colors.MainTextColor)
             
-            
-            ImportStepsTabView(selectedTab: $selectedTab)
-            
-            Divider()
-                .background(Color.colors.MainTextColor)
-            
-            TabView(selection: $selectedTab)
-            {
-                ScrollView
-                {
-                    CSVStepsContentView()
-                }
-                .tag(0)
-                
-                ScrollView
-                {
-                    VCFStepsContentView()
-                }
-                .tag(1)
-                
-                ScrollView
-                {
-                    PDFStepsContentView()
-                }
-                .tag(2)
-                
-                ScrollView
-                {
-                    ExcelStepsContentView()
-                }
-                .tag(3)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .animation(.easeInOut, value: selectedTab)
+            Text("1. Google Kişiler'e gidin\n2. Kişileri dışa aktarın\n3. CSV dosyasını seçin\n4. İndirilen dosyayı uygulamamıza aktarın")
+                .multilineTextAlignment(.leading)
+                .foregroundColor(Color.colors.SecondaryTextColor)
+                .padding()
         }
     }
 }
 
-struct CSVStepsContentView: View
+struct LocalPhoneStepsView: View
+{
+    var body: some View
+    {
+        VStack(spacing: 20)
+        {
+            Image(systemName: "person.crop.circle.fill")
+                .resizable()
+                .frame(width: 100, height: 100)
+            
+            Text("Varsayılan Rehber Adımları")
+                .font(.title2)
+                .foregroundColor(Color.colors.MainTextColor)
+            
+            Text("1. Telefon ayarlarına gidin\n2. Kişiler bölümünü açın\n3. Tüm kişileri seçin\n4. Dışa aktarma seçeneğini kullanın")
+                .multilineTextAlignment(.leading)
+                .foregroundColor(Color.colors.SecondaryTextColor)
+                .padding()
+        }
+    }
+}
+
+struct CSVStepsView: View
 {
     var body: some View
     {
@@ -90,7 +68,7 @@ struct CSVStepsContentView: View
     }
 }
 
-struct VCFStepsContentView: View
+struct VCFStepsView: View
 {
     var body: some View
     {
@@ -113,7 +91,7 @@ struct VCFStepsContentView: View
     }
 }
 
-struct PDFStepsContentView: View
+struct PDFStepsView: View
 {
     var body: some View
     {
@@ -136,7 +114,7 @@ struct PDFStepsContentView: View
     }
 }
 
-struct ExcelStepsContentView: View
+struct ExcelStepsView: View
 {
     var body: some View
     {
@@ -157,64 +135,4 @@ struct ExcelStepsContentView: View
                 .padding()
         }
     }
-}
-
-#Preview
-{
-    ImportStepsView()
-}
-
-struct ImportStepsSheetView: View
-{
-    @State private var selectedTab = 0
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View
-    {
-        VStack
-        {
-            HStack
-            {
-                CloseButtonView()
-                .padding(.leading, 16)
-                Spacer()
-            }
-            
-            ImportStepsTabView(selectedTab: $selectedTab)
-            
-            TabView(selection: $selectedTab)
-            {
-                ScrollView
-                {
-                    CSVStepsContentView()
-                }
-                .tag(0)
-                
-                ScrollView
-                {
-                    VCFStepsContentView()
-                }
-                .tag(1)
-                
-                ScrollView
-                {
-                    PDFStepsContentView()
-                }
-                .tag(2)
-                
-                ScrollView
-                {
-                    ExcelStepsContentView()
-                }
-                .tag(3)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .animation(.easeInOut, value: selectedTab)
-        }
-    }
-}
-
-#Preview
-{
-    ImportStepsSheetView()
 }

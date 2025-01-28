@@ -7,14 +7,11 @@ struct ContentView: View
     var body: some View
     {
         MainTabView(selectedTab: $selectedTab)
-            .background(
-                Color.colors.MainBackgroundColor
-                    .ignoresSafeArea()
-            )
+            .background(Color.colors.MainBackgroundColor.ignoresSafeArea())
     }
 }
 
 #Preview
 {
-    ContentView() 
+    ContentView()
 }
