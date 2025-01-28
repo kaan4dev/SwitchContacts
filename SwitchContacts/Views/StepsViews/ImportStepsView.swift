@@ -27,7 +27,7 @@ struct ImportStepsView: View
                 Spacer()
             }
             
-            LogoAndNameView()
+            AppHeaderView()
             
             
             ImportStepsTabView(selectedTab: $selectedTab)

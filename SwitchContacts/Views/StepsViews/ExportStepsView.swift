@@ -16,7 +16,7 @@ struct ExportStepsView: View
                 Spacer()
             }
             
-            LogoAndNameView()
+            AppHeaderView()
             
             ExportStepsTabView(selectedTab: $selectedTab)
             

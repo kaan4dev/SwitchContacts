@@ -10,7 +10,7 @@ struct StepsSplashView: View
     {
         VStack
         {
-            LogoAndNameView()
+            AppHeaderView()
             
             Spacer()
             

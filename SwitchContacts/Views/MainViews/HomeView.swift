@@ -10,7 +10,7 @@ struct HomeView: View
     {
         VStack 
         {
-            LogoAndNameView()
+            AppHeaderView()
             
             ExportImportTabView(selectedTab: $selectedTab)
                 .background(Color.colors.SplashBackgroundColor.opacity(0.2))
