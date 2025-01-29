@@ -11,15 +11,23 @@ struct GoogleStepsView: View
                 .resizable()
                 .frame(width: 100, height: 100)
             
-            Text("Google Kişiler Adımları")
+            Text("Google Kişiler\nKullanarak Rehber Aktarma")
                 .font(.title2)
+                .multilineTextAlignment(.center)
                 .foregroundColor(Color.colors.MainTextColor)
             
-            Text("1. Google Kişiler'e gidin\n2. Kişileri dışa aktarın\n3. CSV dosyasını seçin\n4. İndirilen dosyayı uygulamamıza aktarın")
-                .multilineTextAlignment(.leading)
-                .foregroundColor(Color.colors.SecondaryTextColor)
-                .padding()
+            VStack(alignment: .leading, spacing: 10)
+            {
+                StepText(number: 1, text: "SwitchContacts uygulamamızdan .vcf seçeneğini seçerek rehber dosyanızı dışarı aktarın.")
+                StepText(number: 2, text: "Dışa aktardığınız dosyayı mail, mesaj uygulamaları, dosya aktarım uygulamarı, bluetooth vb. şekilde rehberinizi aktarmak istediğiniz telefonunuza gönderin ve indirin.")
+                StepText(number: 3, text: "Aktarmak istediğiniz telefonunuza 'Google Kişiler' uygulamasını indirin ve uygulamayı açın.")
+                StepText(number: 4, text: "Ekranın sağ altında bulunan 'Düzenle' seçeneğine basın.")
+                StepText(number: 5, text: "Aşağı kaydırarak 'Dosyadan içe aktar' seçeneğine dokunun.")
+                StepText(number: 6, text: "Rehberinizi aktarmak istediğiniz telefona indirdiğiniz dosyayı seçin.")
+                StepText(number: 8, text: "Rehberinizde seçtiğiniz kişiler cihazınıza kaydedilecektir.")
+            }
         }
+        .padding()
     }
 }
 
@@ -33,15 +41,20 @@ struct LocalPhoneStepsView: View
                 .resizable()
                 .frame(width: 100, height: 100)
             
-            Text("Varsayılan Rehber Adımları")
+            Text("Telefon Rehberinden Dışa Aktarma")
                 .font(.title2)
                 .foregroundColor(Color.colors.MainTextColor)
             
-            Text("1. Telefon ayarlarına gidin\n2. Kişiler bölümünü açın\n3. Tüm kişileri seçin\n4. Dışa aktarma seçeneğini kullanın")
-                .multilineTextAlignment(.leading)
-                .foregroundColor(Color.colors.SecondaryTextColor)
-                .padding()
+            VStack(alignment: .leading, spacing: 10)
+            {
+                StepText(number: 1, text: "Telefonunuzun 'Kişiler' veya 'Rehber' uygulamasını açın.")
+                StepText(number: 2, text: "Sağ üstteki üç nokta (⋮) simgesine dokunun ve 'Ayarlar'ı açın.")
+                StepText(number: 3, text: "'Kişileri Yönet' veya 'Kişileri Dışa Aktar' seçeneğini bulun.")
+                StepText(number: 4, text: ".vcf formatında dışa aktarmayı seçin.")
+                StepText(number: 5, text: "Dosyanızı telefon hafızasına veya SD karta kaydedin.")
+            }
         }
+        .padding()
     }
 }
 
@@ -54,17 +67,20 @@ struct CSVStepsView: View
             Image(systemName: "doc.text")
                 .resizable()
                 .frame(width: 100, height: 100)
-                .foregroundColor(Color.colors.MainTextColor)
             
             Text("CSV Dosyası İçe Aktarma")
                 .font(.title2)
                 .foregroundColor(Color.colors.MainTextColor)
             
-            Text("1. CSV dosyanızı hazırlayın\n2. Dosyanın sütun başlıkları: Ad, Soyad, Telefon, Email olmalı\n3. Uygulamamızdan 'İçe Aktar' butonuna basın\n4. CSV dosyanızı seçin")
-                .multilineTextAlignment(.leading)
-                .foregroundColor(Color.colors.SecondaryTextColor)
-                .padding()
+            VStack(alignment: .leading, spacing: 10)
+            {
+                StepText(number: 1, text: "Bilgisayarınızda veya telefonunuzda CSV dosyanızı oluşturun.")
+                StepText(number: 2, text: "İlk satırda başlıklar şu şekilde olmalı: Ad, Soyad, Telefon, Email.")
+                StepText(number: 3, text: "Uygulamamızda 'İçe Aktar' butonuna basın.")
+                StepText(number: 4, text: "Cihazınızdan CSV dosyanızı seçin ve içeri aktarma işlemini tamamlayın.")
+            }
         }
+        .padding()
     }
 }
 
@@ -77,17 +93,20 @@ struct VCFStepsView: View
             Image(systemName: "person.crop.circle")
                 .resizable()
                 .frame(width: 100, height: 100)
-                .foregroundColor(Color.colors.MainTextColor)
             
-            Text("VCF Dosyası İçe Aktarma")
+            Text("VCF (vCard) Dosyası İçe Aktarma")
                 .font(.title2)
                 .foregroundColor(Color.colors.MainTextColor)
             
-            Text("1. VCF (vCard) dosyanızı hazırlayın\n2. Uygulamamızdan 'İçe Aktar' butonuna basın\n3. VCF dosyanızı seçin\n4. Kişileriniz otomatik olarak aktarılacak")
-                .multilineTextAlignment(.leading)
-                .foregroundColor(Color.colors.SecondaryTextColor)
-                .padding()
+            VStack(alignment: .leading, spacing: 10)
+            {
+                StepText(number: 1, text: "VCF dosyanızı Google Kişiler veya telefonunuzdan dışa aktarın.")
+                StepText(number: 2, text: "Uygulamamızda 'İçe Aktar' butonuna basın.")
+                StepText(number: 3, text: "Cihazınızdan VCF dosyanızı seçin.")
+                StepText(number: 4, text: "Kişileriniz otomatik olarak aktarılacaktır.")
+            }
         }
+        .padding()
     }
 }
 
@@ -100,17 +119,20 @@ struct PDFStepsView: View
             Image(systemName: "doc.fill")
                 .resizable()
                 .frame(width: 100, height: 100)
-                .foregroundColor(Color.colors.MainTextColor)
             
             Text("PDF Dosyası İçe Aktarma")
                 .font(.title2)
                 .foregroundColor(Color.colors.MainTextColor)
             
-            Text("1. PDF dosyanızı hazırlayın\n2. Dosya içeriği tablo formatında olmalı\n3. Uygulamamızdan 'İçe Aktar' butonuna basın\n4. PDF dosyanızı seçin\n5. Tablodan kişiler otomatik çıkarılacak")
-                .multilineTextAlignment(.leading)
-                .foregroundColor(Color.colors.SecondaryTextColor)
-                .padding()
+            VStack(alignment: .leading, spacing: 10)
+            {
+                StepText(number: 1, text: "PDF dosyanızı hazırlayın (tercihen tablo formatında).")
+                StepText(number: 2, text: "Uygulamamızda 'İçe Aktar' butonuna basın.")
+                StepText(number: 3, text: "Cihazınızdan PDF dosyanızı seçin.")
+                StepText(number: 4, text: "Uygulama, PDF içeriğini tarayarak kişileri otomatik olarak çıkartacaktır.")
+            }
         }
+        .padding()
     }
 }
 
@@ -123,16 +145,48 @@ struct ExcelStepsView: View
             Image(systemName: "tablecells")
                 .resizable()
                 .frame(width: 100, height: 100)
-                .foregroundColor(Color.colors.MainTextColor)
             
             Text("Excel Dosyası İçe Aktarma")
                 .font(.title2)
                 .foregroundColor(Color.colors.MainTextColor)
             
-            Text("1. Excel dosyanızı hazırlayın\n2. İlk satır: Ad, Soyad, Telefon, Email olmalı\n3. Uygulamamızdan 'İçe Aktar' butonuna basın\n4. Excel dosyanızı seçin\n5. Veriler otomatik dönüştürülecek")
-                .multilineTextAlignment(.leading)
+            VStack(alignment: .leading, spacing: 10)
+            {
+                StepText(number: 1, text: "Excel dosyanızı oluşturun.")
+                StepText(number: 2, text: "İlk satır başlıkları şu şekilde olmalı: Ad, Soyad, Telefon, Email.")
+                StepText(number: 3, text: "Uygulamamızda 'İçe Aktar' butonuna basın.")
+                StepText(number: 4, text: "Cihazınızdan Excel dosyanızı seçin.")
+                StepText(number: 5, text: "Veriler otomatik olarak içe aktarılacaktır.")
+            }
+        }
+        .padding()
+    }
+}
+
+/// Adımları göstermek için ortak bir yapı
+struct StepText: View
+{
+    let number: Int
+    let text: String
+    
+    var body: some View
+    {
+        HStack(alignment: .top)
+        {
+            Text("\(number).")
+                .font(.headline)
+                .foregroundColor(Color.colors.MainTextColor)
+                .padding(.trailing, 5)
+            
+            Text(text)
+                .font(.body)
                 .foregroundColor(Color.colors.SecondaryTextColor)
-                .padding()
+                .multilineTextAlignment(.leading)
         }
     }
+}
+
+#Preview
+{
+    GoogleStepsView()
 }

@@ -63,18 +63,18 @@ struct AdvancedExportView: View
             {
                 HStack(spacing: 20)
                 {
-                    ExportButton(icon: "doc.text", title: ".csv")
+                    ExportButton(icon: "person.crop.circle", title: ".vcf\n(önerilen)")
                     {
-                        exportFileType = .commaSeparatedText
+                        exportFileType = .vCard
                         Task
                         {
                             await exportContacts()
                         }
                     }
                     
-                    ExportButton(icon: "person.crop.circle", title: ".vcf")
+                    ExportButton(icon: "doc.text", title: ".csv")
                     {
-                        exportFileType = .vCard
+                        exportFileType = .commaSeparatedText
                         Task
                         {
                             await exportContacts()

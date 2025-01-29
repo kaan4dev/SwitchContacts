@@ -19,7 +19,7 @@ struct ExportStepsTabView: View
                     Image("googleContactsIcon")
                         .resizable()
                         .frame(width: 40, height: 40)
-                    Text("Google Kişiler")
+                    Text("Google Kişiler\n(önerilen)")
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
