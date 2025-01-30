@@ -1,6 +1,6 @@
+@preconcurrency import Contacts
 import SwiftUI
 import UniformTypeIdentifiers
-import Contacts
 import PDFKit
 
 struct AdvancedExportView: View
@@ -18,114 +18,23 @@ struct AdvancedExportView: View
     {
         VStack(spacing: 20)
         {
-            HStack
-            {
-                Button
-                {
-                    dismiss()
-                }
-                label:
-                {
-                    Image(systemName: "xmark.circle")
-                        .resizable()
-                        .frame(width: 25, height: 25)
-                        .foregroundColor(Color.colors.MainTextColor)
-                }
-                .padding(.leading, 16)
-                Spacer()
-            }
+            // Close Button
+            closeButton
             
-            VStack(spacing: 10)
-            {
-                Image(systemName: "folder.fill")
-                    .font(.system(size: 30))
-                    .foregroundColor(Color.colors.SecondaryTextColor)
-                
-                Text("Lütfen dışa aktarmak istediğiniz\ndosya türünü seçiniz.")
-                    .font(.system(size: 20, weight: .medium, design: .rounded))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [
-                                Color.colors.MainTextColor,
-                                Color.colors.SecondaryTextColor
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(8)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-            }
+            // Header
+            headerView
             
-            VStack(spacing: 20)
-            {
-                HStack(spacing: 20)
-                {
-                    ExportButton(icon: "person.crop.circle", title: ".vcf\n(önerilen)")
-                    {
-                        exportFileType = .vCard
-                        Task
-                        {
-                            await exportContacts()
-                        }
-                    }
-                    
-                    ExportButton(icon: "doc.text", title: ".csv")
-                    {
-                        exportFileType = .commaSeparatedText
-                        Task
-                        {
-                            await exportContacts()
-                        }
-                    }
-                }
-                
-                HStack(spacing: 20)
-                {
-                    ExportButton(icon: "doc.fill", title: ".pdf")
-                    {
-                        Task
-                        {
-                            await exportContacts()
-                            exportToPDF()
-                        }
-                    }
-                    
-                    ExportButton(icon: "tablecells", title: ".xlsx")
-                    {
-                        Task
-                        {
-                            await exportContacts()
-                            exportToExcel()
-                        }
-                    }
-                }
-            }
+            // Export Buttons
+            exportButtonsGrid
             
             Spacer()
         }
         .padding()
         .background(Color.colors.MainBackgroundColor)
-        .overlay
-        {
-            if isLoading
-            {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                
-                ProgressView()
-                    .scaleEffect(1.5)
-                    .progressViewStyle(CircularProgressViewStyle(tint: Color.colors.MainTextColor))
-            }
-        }
-        .alert("Kişiler", isPresented: $showingAlert)
-        {
+        .overlay { if isLoading { LoadingView() } }
+        .alert("Kişiler", isPresented: $showingAlert) {
             Button("Tamam", role: .cancel) { }
-        }
-        message:
-        {
+        } message: {
             Text(alertMessage)
         }
         .fileExporter(
@@ -136,215 +45,260 @@ struct AdvancedExportView: View
             ),
             contentType: exportFileType,
             defaultFilename: "contacts"
-        )
-        {
-            result in
-            switch result
-            {
-                case .success:
-                    alertMessage = "Kişiler başarıyla dışa aktarıldı!"
-                    showingAlert = true
-                case .failure(let error):
-                    alertMessage = "Dışa aktarma başarısız: \(error.localizedDescription)"
-                    showingAlert = true
+        ) { handleExportResult($0) }
+    }
+    
+    private var closeButton: some View {
+        HStack {
+            Button { dismiss() } label: {
+                Image(systemName: "xmark.circle")
+                    .resizable()
+                    .frame(width: 25, height: 25)
+                    .foregroundColor(Color.colors.MainTextColor)
+            }
+            .padding(.leading, 16)
+            Spacer()
+        }
+    }
+    
+    private var headerView: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "folder.fill")
+                .font(.system(size: 30))
+                .foregroundColor(Color.colors.SecondaryTextColor)
+            
+            Text("Lütfen dışa aktarmak istediğiniz\ndosya türünü seçiniz.")
+                .font(.system(size: 20, weight: .medium, design: .rounded))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [Color.colors.MainTextColor, Color.colors.SecondaryTextColor],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .multilineTextAlignment(.center)
+                .lineSpacing(8)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+        }
+    }
+    
+    private var exportButtonsGrid: some View {
+        VStack(spacing: 20) {
+            HStack(spacing: 20) {
+                ExportButton(icon: "doc.text", title: ".csv") {
+                    Task { await handleExport(type: .commaSeparatedText) }
+                }
+                
+                ExportButton(icon: "person.crop.circle", title: ".vcf") {
+                    Task { await handleExport(type: .vCard) }
+                }
+            }
+            
+            HStack(spacing: 20) {
+                ExportButton(icon: "doc.fill", title: ".pdf") {
+                    Task { await handleExport(type: .pdf) }
+                }
+                
+                ExportButton(icon: "tablecells", title: ".xlsx") {
+                    Task { await handleExport(type: .excel) }
+                }
             }
         }
     }
     
-    private func exportContacts() async
-    {
-        isLoading = true
-        let store = CNContactStore()
+    private func handleExport(type: UTType) async {
+        await MainActor.run { isLoading = true }
+        defer { Task { await MainActor.run { isLoading = false } } }
         
-        do
-        {
-            let granted = try await store.requestAccess(for: .contacts)
-            if granted
-            {
-                let keys = [
-                    CNContactGivenNameKey,
-                    CNContactFamilyNameKey,
-                    CNContactPhoneNumbersKey,
-                    CNContactEmailAddressesKey
-                ] as [CNKeyDescriptor]
-                
-                let request = CNContactFetchRequest(keysToFetch: keys)
-                contacts.removeAll()
-                
-                try store.enumerateContacts(with: request)
-                { contact, _ in
-                    contacts.append(contact)
-                }
-                
-                switch exportFileType
-                {
-                    case .commaSeparatedText:
-                        exportToCSV()
-                    case .vCard:
-                        exportToVCF()
-                    default:
-                        break
-                }
-            }
-            else
-            {
-                alertMessage = "Lütfen ayarlardan kişilere erişime izin verin"
+        exportFileType = type
+        
+        do {
+            contacts = try await fetchContacts()
+            await processExport()
+        } catch {
+            await MainActor.run {
+                alertMessage = error.localizedDescription
                 showingAlert = true
             }
         }
-        catch
-        {
-            alertMessage = "Kişilere erişim hatası: \(error.localizedDescription)"
-            showingAlert = true
+    }
+    
+    private func fetchContacts() async throws -> [CNContact] {
+        let store = CNContactStore()
+        let granted = try await store.requestAccess(for: .contacts)
+        
+        guard granted else {
+            throw ContactError.accessDenied
         }
         
-        isLoading = false
-    }
-    
-    private func exportToCSV()
-    {
-        var csvString = "Ad,Soyad,Telefon,Email\n"
-        for contact in contacts
-        {
-            let firstName = contact.givenName.replacingOccurrences(of: ",", with: " ")
-            let lastName = contact.familyName.replacingOccurrences(of: ",", with: " ")
-            let phone = contact.phoneNumbers.first?.value.stringValue ?? ""
-            let email = contact.emailAddresses.first?.value as String? ?? ""
-            
-            csvString += "\(firstName),\(lastName),\(phone),\(email)\n"
-        }
-        
-        exportData = csvString.data(using: .utf8)
-        exportFileType = .commaSeparatedText
-        isExporting = true
-    }
-    
-    private func exportToVCF()
-    {
-        let vcfString = contacts.map { contact -> String in
-            var vcf = "BEGIN:VCARD\nVERSION:3.0\n"
-            vcf += "N:\(contact.familyName);\(contact.givenName);;;\n"
-            vcf += "FN:\(contact.givenName) \(contact.familyName)\n"
-            
-            if let phone = contact.phoneNumbers.first?.value.stringValue
-            {
-                vcf += "TEL;TYPE=CELL:\(phone)\n"
-            }
-            
-            if let email = contact.emailAddresses.first?.value as String?
-            {
-                vcf += "EMAIL;TYPE=HOME:\(email)\n"
-            }
-            
-            vcf += "END:VCARD\n"
-            return vcf
-        }.joined()
-        
-        exportData = vcfString.data(using: .utf8)
-        exportFileType = .vCard
-        isExporting = true
-    }
-    
-    private func exportToPDF()
-    {
-        let pdfMetaData = [
-            kCGPDFContextCreator: "Switch Contacts",
-            kCGPDFContextAuthor: "Switch Contacts App"
+        let keys = [
+            CNContactGivenNameKey as CNKeyDescriptor,
+            CNContactFamilyNameKey as CNKeyDescriptor,
+            CNContactPhoneNumbersKey as CNKeyDescriptor,
+            CNContactEmailAddressesKey as CNKeyDescriptor
         ]
         
-        let format = UIGraphicsPDFRendererFormat()
-        format.documentInfo = pdfMetaData as [String: Any]
+        let request = CNContactFetchRequest(keysToFetch: keys)
         
-        let pageRect = CGRect(x: 0, y: 0, width: 595.2, height: 841.8) // A4 size
-        let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
+        return try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    var tempContacts: [CNContact] = []
+                    try store.enumerateContacts(with: request) { contact, _ in
+                        tempContacts.append(contact)
+                    }
+                    continuation.resume(returning: tempContacts)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    private func processExport() async {
+        await Task.detached {
+            switch await exportFileType {
+            case .commaSeparatedText: await MainActor.run { exportToCSV() }
+            case .vCard: await MainActor.run { exportToVCF() }
+            case .pdf: await MainActor.run { exportToPDF() }
+            case .excel: await MainActor.run { exportToExcel() }
+            default: break
+            }
+        }.value
         
-        let data = renderer.pdfData { context in
+        await MainActor.run { isExporting = true }
+    }
+    
+    private func exportToCSV() {
+        let csvString = contacts.map { contact in
+            [
+                contact.givenName,
+                contact.familyName,
+                contact.phoneNumbers.first?.value.stringValue ?? "",
+                contact.emailAddresses.first?.value as String? ?? ""
+            ].joined(separator: ",")
+        }.joined(separator: "\n")
+        
+        let finalString = "Ad,Soyad,Telefon,Email\n" + csvString
+        exportData = finalString.data(using: .utf8)
+    }
+    
+    private func exportToVCF() {
+        let vcfString = contacts.map { contact -> String in
+            """
+            BEGIN:VCARD
+            VERSION:3.0
+            N:\(contact.familyName);\(contact.givenName);;;
+            FN:\(contact.givenName) \(contact.familyName)
+            TEL;TYPE=CELL:\(contact.phoneNumbers.first?.value.stringValue ?? "")
+            EMAIL;TYPE=HOME:\(contact.emailAddresses.first?.value as String? ?? "")
+            END:VCARD
+            """
+        }.joined(separator: "\n")
+        
+        exportData = vcfString.data(using: .utf8)
+    }
+    
+    private func exportToPDF() {
+        let pageRect = CGRect(x: 0, y: 0, width: 595.2, height: 841.8)
+        let renderer = UIGraphicsPDFRenderer(bounds: pageRect)
+        
+        exportData = renderer.pdfData { context in
             context.beginPage()
-            
-            let attributes = [
-                NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12)
-            ]
-            
+            let attributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12)]
             var yPosition: CGFloat = 50
             
-            // Header
             ["Ad", "Soyad", "Telefon", "Email"].enumerated().forEach { index, title in
-                let xPosition = CGFloat(index) * 140 + 40
                 (title as NSString).draw(
-                    at: CGPoint(x: xPosition, y: yPosition),
+                    at: CGPoint(x: CGFloat(index) * 140 + 40, y: yPosition),
                     withAttributes: attributes
                 )
             }
             
             yPosition += 20
             
-            // Content
-            for contact in contacts
-            {
-                let firstName = contact.givenName
-                let lastName = contact.familyName
-                let phone = contact.phoneNumbers.first?.value.stringValue ?? ""
-                let email = contact.emailAddresses.first?.value as String? ?? ""
-                
-                [firstName, lastName, phone, email].enumerated().forEach { index, value in
-                    let xPosition = CGFloat(index) * 140 + 40
+            for contact in contacts {
+                [
+                    contact.givenName,
+                    contact.familyName,
+                    contact.phoneNumbers.first?.value.stringValue ?? "",
+                    contact.emailAddresses.first?.value as String? ?? ""
+                ].enumerated().forEach { index, value in
                     (value as NSString).draw(
-                        at: CGPoint(x: xPosition, y: yPosition),
+                        at: CGPoint(x: CGFloat(index) * 140 + 40, y: yPosition),
                         withAttributes: attributes
                     )
                 }
                 
                 yPosition += 20
-                
-                if yPosition > pageRect.height - 50
-                {
+                if yPosition > pageRect.height - 50 {
                     context.beginPage()
                     yPosition = 50
                 }
             }
         }
-        
-        exportData = data
-        exportFileType = .pdf
-        isExporting = true
     }
     
-    private func exportToExcel()
-    {
-        var excelString = "Ad\tSoyad\tTelefon\tEmail\n"
+    private func exportToExcel() {
+        let excelString = contacts.map { contact in
+            [
+                contact.givenName,
+                contact.familyName,
+                contact.phoneNumbers.first?.value.stringValue ?? "",
+                contact.emailAddresses.first?.value as String? ?? ""
+            ].joined(separator: "\t")
+        }.joined(separator: "\n")
         
-        for contact in contacts
-        {
-            let firstName = contact.givenName
-            let lastName = contact.familyName
-            let phone = contact.phoneNumbers.first?.value.stringValue ?? ""
-            let email = contact.emailAddresses.first?.value as String? ?? ""
-            
-            excelString += "\(firstName)\t\(lastName)\t\(phone)\t\(email)\n"
+        let finalString = "Ad\tSoyad\tTelefon\tEmail\n" + excelString
+        exportData = finalString.data(using: .utf8)
+    }
+    
+    private func handleExportResult(_ result: Result<URL, Error>) {
+        switch result {
+        case .success:
+            alertMessage = "Kişiler başarıyla dışa aktarıldı!"
+        case .failure(let error):
+            alertMessage = "Dışa aktarma başarısız: \(error.localizedDescription)"
         }
-        
-        exportData = excelString.data(using: .utf8)
-        exportFileType = .tabSeparatedText
-        isExporting = true
+        showingAlert = true
     }
 }
 
-struct ExportButton: View
-{
+// MARK: - Supporting Types
+
+private enum ContactError: LocalizedError {
+    case accessDenied
+    
+    var errorDescription: String? {
+        switch self {
+        case .accessDenied:
+            return "Lütfen ayarlardan kişilere erişime izin verin"
+        }
+    }
+}
+
+private struct LoadingView: View {
+    var body: some View {
+        Color.black.opacity(0.3)
+            .ignoresSafeArea()
+        ProgressView()
+            .scaleEffect(1.5)
+            .progressViewStyle(CircularProgressViewStyle(tint: Color.colors.MainTextColor))
+    }
+}
+
+private struct ExportButton: View {
     let icon: String
     let title: String
     let action: () -> Void
     
-    var body: some View
-    {
-        Button(action: action)
-        {
-            VStack
-            {
+    var body: some View {
+        Button(action: action) {
+            VStack {
                 Image(systemName: icon)
                     .font(.system(size: 30))
                     .foregroundColor(Color.colors.SecondaryTextColor)
-                
                 Text(title)
                     .foregroundColor(Color.colors.MainTextColor)
             }
@@ -353,9 +307,4 @@ struct ExportButton: View
             .cornerRadius(10)
         }
     }
-}
-
-#Preview
-{
-    AdvancedExportView()
 }

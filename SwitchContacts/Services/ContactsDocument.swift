@@ -1,29 +1,24 @@
-import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
-import Contacts
 
-struct ContactsDocument: FileDocument
-{
-    var contactData: Data
-    var fileType: UTType
+struct ContactsDocument: FileDocument {
+    let contactData: Data
+    let fileType: UTType
     
-    static var readableContentTypes: [UTType] { [.commaSeparatedText, .vCard] }
+    static var readableContentTypes: [UTType] { [.commaSeparatedText, .vCard, .pdf, .excel] }
+    static var writableContentTypes: [UTType] { [.commaSeparatedText, .vCard, .pdf, .excel] }
     
-    init(contactData: Data, fileType: UTType)
-    {
+    init(contactData: Data, fileType: UTType) {
         self.contactData = contactData
         self.fileType = fileType
     }
     
-    init(configuration: ReadConfiguration) throws
-    {
-        self.contactData = Data()
+    init(configuration: ReadConfiguration) throws {
+        self.contactData = configuration.file.regularFileContents ?? Data()
         self.fileType = .commaSeparatedText
     }
     
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper
-    {
-        return FileWrapper(regularFileWithContents: contactData)
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        FileWrapper(regularFileWithContents: contactData)
     }
 }
