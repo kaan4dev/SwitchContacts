@@ -20,7 +20,10 @@ struct AppHeaderView: View
                 Image(systemName: "point.topright.arrow.triangle.backward.to.point.bottomleft.scurvepath.fill")
                     .imageScale(.large)
                     .foregroundColor(Color.colors.SecondaryTextColor)
+                   
             }
+            .frame(maxWidth: .infinity)
+            .multilineTextAlignment(.center)
             
             Spacer()
             
@@ -30,10 +33,11 @@ struct AppHeaderView: View
             }
             label:
             {
-                Image(systemName: "questionmark.circle.fill")
+                Image(systemName: "wand.and.stars.inverse")
                     .resizable()
                     .frame(width: 35, height: 35)
                     .foregroundColor(Color.colors.SecondaryTextColor)
+                    .padding(.trailing, 10)
             }
         }
         .sheet(isPresented: $showFeatures)

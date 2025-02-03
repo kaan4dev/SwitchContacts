@@ -12,7 +12,7 @@ struct MainTabView: View
                 .tabItem
                 {
                     Image(systemName: "list.number")
-                    Text("Steps")
+                    Text("Aktarma Adımları")
                 }
                 .tag(0)
             
@@ -20,7 +20,7 @@ struct MainTabView: View
                 .tabItem
                 {
                     Image(systemName: "house")
-                    Text("Home")
+                    Text("AnaSayfa")
                 }
                 .tag(1)
             
@@ -28,7 +28,7 @@ struct MainTabView: View
                 .tabItem
                 {
                     Image(systemName: "gear")
-                    Text("Settings")
+                    Text("Ayarlar")
                 }
                 .tag(2)
         }

@@ -2,7 +2,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 import Contacts
 
-struct ExportView: View {
+struct ExportView: View
+{
     @Binding var showingSteps: Bool
     @State private var contacts: [CNContact] = []
     @State private var showingAlert = false
@@ -13,14 +14,22 @@ struct ExportView: View {
     @State private var isLoading = false
     @State private var showAdvancedExportSheet = false
 
-    var body: some View {
-        NavigationView {
-            ZStack {
-                VStack(spacing: 90) {
-                    Button {
+    var body: some View
+    {
+        NavigationView
+        {
+            ZStack
+            {
+                VStack(spacing: 90)
+                {
+                    Button
+                    {
                         showAdvancedExportSheet = true
-                    } label: {
-                        VStack {
+                    }
+                    label:
+                    {
+                        VStack
+                        {
                             Image(systemName: "square.and.arrow.up")
                                 .resizable()
                                 .frame(width: 75, height: 100)
@@ -37,9 +46,12 @@ struct ExportView: View {
                         AdvancedExportView()
                     }
 
-                    Button {
+                    Button
+                    {
                         showingSteps = true
-                    } label: {
+                    }
+                    label:
+                    {
                         Text("Dışa Aktarma Adımları")
                             .imageScale(.large)
                             .foregroundColor(Color.colors.ButtonTextColor)
@@ -51,7 +63,8 @@ struct ExportView: View {
                 }
                 .padding()
 
-                if isLoading {
+                if isLoading
+                {
                     Color.black.opacity(0.3)
                         .ignoresSafeArea()
 
@@ -73,8 +86,11 @@ struct ExportView: View {
                 ),
                 contentType: exportFileType,
                 defaultFilename: "contacts"
-            ) { result in
-                switch result {
+            )
+            {
+                result in
+                switch result
+                {
                 case .success:
                     alertMessage = "Kişiler başarıyla dışa aktarıldı!"
                     showingAlert = true
@@ -86,29 +102,39 @@ struct ExportView: View {
         }
     }
 
-    private func requestContactsAccess() async {
+    private func requestContactsAccess() async
+    {
         let store = CNContactStore()
-        do {
+        do
+        {
             let granted = try await store.requestAccess(for: .contacts)
-            if granted {
-                await MainActor.run {
+            if granted
+            {
+                await MainActor.run
+                {
                     fetchContacts()
                 }
-            } else {
+            }
+            else
+            {
                 await MainActor.run {
                     alertMessage = "Lütfen ayarlardan kişilere erişime izin verin"
                     showingAlert = true
                 }
             }
-        } catch {
-            await MainActor.run {
+        }
+        catch
+        {
+            await MainActor.run
+            {
                 alertMessage = "Kişilere erişim hatası: \(error.localizedDescription)"
                 showingAlert = true
             }
         }
     }
 
-    private func fetchContacts() {
+    private func fetchContacts()
+    {
         let store = CNContactStore()
         let keys = [
             CNContactGivenNameKey,
@@ -121,17 +147,22 @@ struct ExportView: View {
 
         do {
             contacts.removeAll()
-            try store.enumerateContacts(with: request) { contact, _ in
+            try store.enumerateContacts(with: request)
+            {
+                contact, _ in
                 contacts.append(contact)
             }
             exportContacts()
-        } catch {
+        }
+        catch
+        {
             alertMessage = "Kişiler getirilirken hata oluştu: \(error.localizedDescription)"
             showingAlert = true
         }
     }
 
-    private func exportContacts() {
+    private func exportContacts()
+    {
         var csvString = "Ad,Soyad,Telefon,Email\n"
         for contact in contacts {
             let firstName = contact.givenName
@@ -148,6 +179,7 @@ struct ExportView: View {
     }
 }
 
-#Preview {
+#Preview
+{
     ExportView(showingSteps: .constant(false))
 }

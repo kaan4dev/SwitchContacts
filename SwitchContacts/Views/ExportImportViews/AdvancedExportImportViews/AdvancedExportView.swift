@@ -2,6 +2,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import PDFKit
+import Foundation
 
 struct AdvancedExportView: View
 {
@@ -18,7 +19,22 @@ struct AdvancedExportView: View
     {
         VStack(spacing: 20)
         {
-            closeButton
+            HStack
+            {
+                Button
+                {
+                    dismiss()
+                }
+                label:
+                {
+                    Image(systemName: "xmark.circle")
+                        .resizable()
+                        .frame(width: 25, height: 25)
+                        .foregroundColor(Color.colors.MainTextColor)
+                }
+                .padding(.leading, 16)
+                Spacer()
+            }
             
             headerView
             
@@ -43,28 +59,12 @@ struct AdvancedExportView: View
             ),
             contentType: exportFileType,
             defaultFilename: "contacts"
-        ) { handleExportResult($0) }
-    }
-       
-    private var closeButton: some View
-    {
-        HStack
+        )
         {
-            Button
-            {
-                dismiss()
-            }
-            label:
-            {
-                Image(systemName: "xmark.circle")
-                    .resizable()
-                    .frame(width: 25, height: 25)
-                    .foregroundColor(Color.colors.MainTextColor)
-            }
-            .padding(.leading, 16)
-            Spacer()
+            result in
+            handleExportResult(result, alertMessage: &alertMessage, showingAlert: &showingAlert)
         }
-        }
+    }
     
     private var headerView: some View
     {
@@ -96,12 +96,12 @@ struct AdvancedExportView: View
         {
             HStack(spacing: 20)
             {
-                ExportButton(icon: "doc.text", title: ".csv")
+                ExportButtonView(icon: "doc.text", title: ".csv")
                 {
                     Task { await handleExport(type: .commaSeparatedText) }
                 }
                 
-                ExportButton(icon: "person.crop.circle", title: ".vcf")
+                ExportButtonView(icon: "person.crop.circle", title: ".vcf")
                 {
                     Task { await handleExport(type: .vCard) }
                 }
@@ -109,19 +109,18 @@ struct AdvancedExportView: View
             
             HStack(spacing: 20)
             {
-                ExportButton(icon: "doc.fill", title: ".pdf")
+                ExportButtonView(icon: "doc.fill", title: ".pdf")
                 {
                     Task { await handleExport(type: .pdf) }
                 }
                 
-                ExportButton(icon: "tablecells", title: ".xlsx")
+                ExportButtonView(icon: "tablecells", title: ".xlsx")
                 {
                     Task { await handleExport(type: .excel) }
                 }
             }
         }
     }
-    
     
     private func handleExport(type: UTType) async
     {
@@ -145,218 +144,21 @@ struct AdvancedExportView: View
         }
     }
     
-    private func fetchContacts() async throws -> [CNContact]
-    {
-        let store = CNContactStore()
-        let granted = try await store.requestAccess(for: .contacts)
-        
-        guard granted else
-        {
-            throw ContactError.accessDenied
-        }
-        
-        let keys = [
-            CNContactGivenNameKey as CNKeyDescriptor,
-            CNContactFamilyNameKey as CNKeyDescriptor,
-            CNContactPhoneNumbersKey as CNKeyDescriptor,
-            CNContactEmailAddressesKey as CNKeyDescriptor
-        ]
-        
-        let request = CNContactFetchRequest(keysToFetch: keys)
-        
-        return try await withCheckedThrowingContinuation
-        {
-            continuation in
-            DispatchQueue.global(qos: .userInitiated).async
-            {
-                do
-                {
-                    var tempContacts: [CNContact] = []
-                    try store.enumerateContacts(with: request)
-                    {
-                        contact, _ in
-                        tempContacts.append(contact)
-                    }
-                    continuation.resume(returning: tempContacts)
-                }
-                catch
-                {
-                    continuation.resume(throwing: error)
-                }
-            }
-        }
-    }
-    
     private func processExport() async
     {
         await Task.detached
         {
             switch await exportFileType
             {
-            case .commaSeparatedText: await MainActor.run { exportToCSV() }
-            case .vCard: await MainActor.run { exportToVCF() }
-            case .pdf: await MainActor.run { exportToPDF() }
-            case .excel: await MainActor.run { exportToExcel() }
+            case .commaSeparatedText: await MainActor.run { exportData = exportToCSV(contacts: contacts) }
+            case .vCard: await MainActor.run { exportData = exportToVCF(contacts: contacts) }
+            case .pdf: await MainActor.run { exportData = exportToPDF(contacts: contacts) }
+            case .excel: await MainActor.run { exportData = exportToExcel(contacts: contacts) }
             default: break
             }
         }.value
         
         await MainActor.run { isExporting = true }
-    }
-    
-    private func exportToCSV()
-    {
-        let csvString = contacts.map { contact in
-            [
-                contact.givenName,
-                contact.familyName,
-                contact.phoneNumbers.first?.value.stringValue ?? "",
-                contact.emailAddresses.first?.value as String? ?? ""
-            ].joined(separator: ",")
-        }.joined(separator: "\n")
-        
-        let finalString = "Ad,Soyad,Telefon,Email\n" + csvString
-        exportData = finalString.data(using: .utf8)
-    }
-    
-    private func exportToVCF()
-    {
-        let vcfString = contacts.map { contact -> String in
-            """
-            BEGIN:VCARD
-            VERSION:3.0
-            N:\(contact.familyName);\(contact.givenName);;;
-            FN:\(contact.givenName) \(contact.familyName)
-            TEL;TYPE=CELL:\(contact.phoneNumbers.first?.value.stringValue ?? "")
-            EMAIL;TYPE=HOME:\(contact.emailAddresses.first?.value as String? ?? "")
-            END:VCARD
-            """
-        }.joined(separator: "\n")
-        
-        exportData = vcfString.data(using: .utf8)
-    }
-    
-    private func exportToPDF()
-    {
-        let pageRect = CGRect(x: 0, y: 0, width: 595.2, height: 841.8)
-        let renderer = UIGraphicsPDFRenderer(bounds: pageRect)
-        
-        exportData = renderer.pdfData
-        {
-            context in
-            context.beginPage()
-            let attributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12)]
-            var yPosition: CGFloat = 50
-            
-            ["Ad", "Soyad", "Telefon", "Email"].enumerated().forEach { index, title in
-                (title as NSString).draw(
-                    at: CGPoint(x: CGFloat(index) * 140 + 40, y: yPosition),
-                    withAttributes: attributes
-                )
-            }
-            
-            yPosition += 20
-            
-            for contact in contacts
-            {
-                [
-                    contact.givenName,
-                    contact.familyName,
-                    contact.phoneNumbers.first?.value.stringValue ?? "",
-                    contact.emailAddresses.first?.value as String? ?? ""
-                ].enumerated().forEach { index, value in
-                    (value as NSString).draw(
-                        at: CGPoint(x: CGFloat(index) * 140 + 40, y: yPosition),
-                        withAttributes: attributes
-                    )
-                }
-                
-                yPosition += 20
-                if yPosition > pageRect.height - 50 {
-                    context.beginPage()
-                    yPosition = 50
-                }
-            }
-        }
-    }
-    
-    private func exportToExcel()
-    {
-        let excelString = contacts.map
-        {
-            contact in
-            [
-                contact.givenName,
-                contact.familyName,
-                contact.phoneNumbers.first?.value.stringValue ?? "",
-                contact.emailAddresses.first?.value as String? ?? ""
-            ].joined(separator: "\t")
-        }.joined(separator: "\n")
-        
-        let finalString = "Ad\tSoyad\tTelefon\tEmail\n" + excelString
-        exportData = finalString.data(using: .utf8)
-    }
-    
-    private func handleExportResult(_ result: Result<URL, Error>) {
-        switch result {
-        case .success:
-            alertMessage = "Kişiler başarıyla dışa aktarıldı!"
-        case .failure(let error):
-            alertMessage = "Dışa aktarma başarısız: \(error.localizedDescription)"
-        }
-        showingAlert = true
-    }
-}
-
-
-private enum ContactError: LocalizedError
-{
-    case accessDenied
-    
-    var errorDescription: String?
-    {
-        switch self
-        {
-        case .accessDenied:
-            return "Lütfen ayarlardan kişilere erişime izin verin"
-        }
-    }
-}
-
-private struct LoadingView: View
-{
-    var body: some View
-    {
-        Color.black.opacity(0.3)
-            .ignoresSafeArea()
-        ProgressView()
-            .scaleEffect(1.5)
-            .progressViewStyle(CircularProgressViewStyle(tint: Color.colors.MainTextColor))
-    }
-}
-
-private struct ExportButton: View
-{
-    let icon: String
-    let title: String
-    let action: () -> Void
-    
-    var body: some View
-    {
-        Button(action: action)
-        {
-            VStack
-            {
-                Image(systemName: icon)
-                    .font(.system(size: 30))
-                    .foregroundColor(Color.colors.SecondaryTextColor)
-                Text(title)
-                    .foregroundColor(Color.colors.MainTextColor)
-            }
-            .frame(width: 150, height: 100)
-            .background(Color.colors.ButtonBackgroundColor.opacity(0.2))
-            .cornerRadius(10)
-        }
     }
 }
 
