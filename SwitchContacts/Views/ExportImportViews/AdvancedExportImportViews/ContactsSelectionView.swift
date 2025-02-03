@@ -1,8 +1,12 @@
 import SwiftUI
+import Contacts
 
 struct ContactSelectionView: View {
     @Binding var contacts: [ImportContact]
     @State private var searchText = ""
+    @State private var isLoading = false
+    @State private var showingAlert = false
+    @State private var alertMessage = ""
     
     var body: some View {
         VStack(spacing: 20) {
@@ -54,10 +58,28 @@ struct ContactSelectionView: View {
             }
             .listStyle(.plain)
             
+            // Import Button
+            Button(action: { Task { await importSelectedContacts() } }) {
+                Text("Import Selected Contacts")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.green)
+                    .cornerRadius(10)
+            }
+            .padding()
+            
             Spacer()
         }
         .padding()
         .background(Color.colors.MainBackgroundColor)
+        .overlay { if isLoading { LoadingView() } }
+        .alert("Import Contacts", isPresented: $showingAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(alertMessage)
+        }
     }
     
     private var filteredContacts: [ImportContact] {
@@ -84,6 +106,56 @@ struct ContactSelectionView: View {
             contacts[index].isSelected = false
         }
     }
+    
+    private func importSelectedContacts() async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        let store = CNContactStore()
+        
+        do {
+            let granted = try await store.requestAccess(for: .contacts)
+            guard granted else {
+                throw ImportError.accessDenied
+            }
+            
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                for contact in contacts where contact.isSelected {
+                    group.addTask {
+                        let newContact = CNMutableContact()
+                        newContact.givenName = contact.firstName
+                        newContact.familyName = contact.lastName
+                        
+                        if !contact.phoneNumber.isEmpty {
+                            newContact.phoneNumbers = [
+                                CNLabeledValue(
+                                    label: CNLabelPhoneNumberMobile,
+                                    value: CNPhoneNumber(stringValue: contact.phoneNumber)
+                                )
+                            ]
+                        }
+                        
+                        if !contact.email.isEmpty {
+                            newContact.emailAddresses = [
+                                CNLabeledValue(label: CNLabelHome, value: contact.email as NSString)
+                            ]
+                        }
+                        
+                        let saveRequest = CNSaveRequest()
+                        saveRequest.add(newContact, toContainerWithIdentifier: nil)
+                        try store.execute(saveRequest)
+                    }
+                }
+            }
+            
+            alertMessage = "Contacts imported successfully!"
+            showingAlert = true
+            
+        } catch {
+            alertMessage = "Import error: \(error.localizedDescription)"
+            showingAlert = true
+        }
+    }
 }
 
 private struct ContactRow: View {
@@ -108,6 +180,27 @@ private struct ContactRow: View {
             }
         }
         .padding(.vertical, 4)
+    }
+}
+
+private struct LoadingView: View {
+    var body: some View {
+        Color.black.opacity(0.3)
+            .ignoresSafeArea()
+        ProgressView()
+            .scaleEffect(1.5)
+            .progressViewStyle(CircularProgressViewStyle(tint: Color.colors.MainTextColor))
+    }
+}
+
+private enum ImportError: LocalizedError {
+    case accessDenied
+    
+    var errorDescription: String? {
+        switch self {
+        case .accessDenied:
+            return "Please allow access to contacts in settings."
+        }
     }
 }
 

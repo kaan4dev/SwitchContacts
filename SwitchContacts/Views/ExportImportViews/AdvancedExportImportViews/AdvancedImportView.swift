@@ -2,16 +2,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 import Contacts
 
-struct ImportContact: Identifiable {
-    let id = UUID()
-    let firstName: String
-    let lastName: String
-    let phoneNumber: String
-    let email: String
-    var isSelected: Bool = true
-}
-
-struct AdvancedImportView: View {
+struct AdvancedImportView: View
+{
     @Environment(\.dismiss) private var dismiss
     @State private var showingFilePicker = false
     @State private var showingAlert = false
@@ -21,11 +13,18 @@ struct AdvancedImportView: View {
     @State private var selectedFileType: UTType = .commaSeparatedText
     @State private var showingContactSelection = false
     
-    var body: some View {
-        VStack(spacing: 20) {
-            // Close Button
-            HStack {
-                Button { dismiss() } label: {
+    var body: some View
+    {
+        VStack(spacing: 20)
+        {
+            HStack
+            {
+                Button
+                {
+                    dismiss()
+                }
+                label:
+                {
                     Image(systemName: "xmark.circle")
                         .resizable()
                         .frame(width: 25, height: 25)
@@ -35,8 +34,8 @@ struct AdvancedImportView: View {
                 Spacer()
             }
             
-            // Header
-            VStack(spacing: 10) {
+            VStack(spacing: 10)
+            {
                 Image(systemName: "folder.fill")
                     .font(.system(size: 30))
                     .foregroundColor(Color.colors.SecondaryTextColor)
@@ -56,21 +55,25 @@ struct AdvancedImportView: View {
                     .padding(.vertical, 10)
             }
             
-            // Import Buttons
-            VStack(spacing: 20) {
-                HStack(spacing: 20) {
-                    ImportButton(icon: "doc.text", title: ".csv") {
+            VStack(spacing: 20)
+            {
+                HStack(spacing: 20)
+                {
+                    ImportButton(icon: "doc.text", title: ".csv")
+                    {
                         selectedFileType = .commaSeparatedText
                         showingFilePicker = true
                     }
                     
-                    ImportButton(icon: "person.crop.circle", title: ".vcf") {
+                    ImportButton(icon: "person.crop.circle", title: ".vcf")
+                    {
                         selectedFileType = .vCard
                         showingFilePicker = true
                     }
                 }
                 
-                HStack(spacing: 20) {
+                HStack(spacing: 20)
+                {
                     ImportButton(icon: "tablecells", title: ".xlsx") {
                         selectedFileType = .excel
                         showingFilePicker = true
@@ -78,9 +81,10 @@ struct AdvancedImportView: View {
                 }
             }
             
-            // Contact List
-            if !importedContacts.isEmpty {
-                Button(action: { showingContactSelection = true }) {
+            if !importedContacts.isEmpty
+            {
+                Button(action: { showingContactSelection = true })
+                {
                     Text("Seçili Kişileri Görüntüle ve Düzenle")
                         .font(.headline)
                         .foregroundColor(.white)
@@ -106,9 +110,12 @@ struct AdvancedImportView: View {
             isPresented: $showingFilePicker,
             allowedContentTypes: [selectedFileType],
             allowsMultipleSelection: false
-        ) { result in
-            Task {
-                do {
+        ) {
+            result in
+            Task
+            {
+                do
+                {
                     isLoading = true
                     guard let fileURL = try result.get().first else { return }
                     
@@ -348,6 +355,16 @@ private enum ImportError: LocalizedError {
             return "Dosya bulunamadı"
         }
     }
+}
+
+struct ImportContact: Identifiable
+{
+    let id = UUID()
+    let firstName: String
+    let lastName: String
+    let phoneNumber: String
+    let email: String
+    var isSelected: Bool = true
 }
 
 #Preview {

@@ -18,21 +18,19 @@ struct AdvancedExportView: View
     {
         VStack(spacing: 20)
         {
-            // Close Button
             closeButton
             
-            // Header
             headerView
             
-            // Export Buttons
-            exportButtonsGrid
+            MiddleSection
             
             Spacer()
         }
         .padding()
         .background(Color.colors.MainBackgroundColor)
         .overlay { if isLoading { LoadingView() } }
-        .alert("Kişiler", isPresented: $showingAlert) {
+        .alert("Kişiler", isPresented: $showingAlert)
+        {
             Button("Tamam", role: .cancel) { }
         } message: {
             Text(alertMessage)
@@ -47,10 +45,17 @@ struct AdvancedExportView: View
             defaultFilename: "contacts"
         ) { handleExportResult($0) }
     }
-    
-    private var closeButton: some View {
-        HStack {
-            Button { dismiss() } label: {
+       
+    private var closeButton: some View
+    {
+        HStack
+        {
+            Button
+            {
+                dismiss()
+            }
+            label:
+            {
                 Image(systemName: "xmark.circle")
                     .resizable()
                     .frame(width: 25, height: 25)
@@ -59,10 +64,12 @@ struct AdvancedExportView: View
             .padding(.leading, 16)
             Spacer()
         }
-    }
+        }
     
-    private var headerView: some View {
-        VStack(spacing: 10) {
+    private var headerView: some View
+    {
+        VStack(spacing: 10)
+        {
             Image(systemName: "folder.fill")
                 .font(.system(size: 30))
                 .foregroundColor(Color.colors.SecondaryTextColor)
@@ -83,52 +90,68 @@ struct AdvancedExportView: View
         }
     }
     
-    private var exportButtonsGrid: some View {
-        VStack(spacing: 20) {
-            HStack(spacing: 20) {
-                ExportButton(icon: "doc.text", title: ".csv") {
+    private var MiddleSection: some View
+    {
+        VStack(spacing: 20)
+        {
+            HStack(spacing: 20)
+            {
+                ExportButton(icon: "doc.text", title: ".csv")
+                {
                     Task { await handleExport(type: .commaSeparatedText) }
                 }
                 
-                ExportButton(icon: "person.crop.circle", title: ".vcf") {
+                ExportButton(icon: "person.crop.circle", title: ".vcf")
+                {
                     Task { await handleExport(type: .vCard) }
                 }
             }
             
-            HStack(spacing: 20) {
-                ExportButton(icon: "doc.fill", title: ".pdf") {
+            HStack(spacing: 20)
+            {
+                ExportButton(icon: "doc.fill", title: ".pdf")
+                {
                     Task { await handleExport(type: .pdf) }
                 }
                 
-                ExportButton(icon: "tablecells", title: ".xlsx") {
+                ExportButton(icon: "tablecells", title: ".xlsx")
+                {
                     Task { await handleExport(type: .excel) }
                 }
             }
         }
     }
     
-    private func handleExport(type: UTType) async {
+    
+    private func handleExport(type: UTType) async
+    {
         await MainActor.run { isLoading = true }
         defer { Task { await MainActor.run { isLoading = false } } }
         
         exportFileType = type
         
-        do {
+        do
+        {
             contacts = try await fetchContacts()
             await processExport()
-        } catch {
-            await MainActor.run {
+        }
+        catch
+        {
+            await MainActor.run
+            {
                 alertMessage = error.localizedDescription
                 showingAlert = true
             }
         }
     }
     
-    private func fetchContacts() async throws -> [CNContact] {
+    private func fetchContacts() async throws -> [CNContact]
+    {
         let store = CNContactStore()
         let granted = try await store.requestAccess(for: .contacts)
         
-        guard granted else {
+        guard granted else
+        {
             throw ContactError.accessDenied
         }
         
@@ -141,24 +164,35 @@ struct AdvancedExportView: View
         
         let request = CNContactFetchRequest(keysToFetch: keys)
         
-        return try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                do {
+        return try await withCheckedThrowingContinuation
+        {
+            continuation in
+            DispatchQueue.global(qos: .userInitiated).async
+            {
+                do
+                {
                     var tempContacts: [CNContact] = []
-                    try store.enumerateContacts(with: request) { contact, _ in
+                    try store.enumerateContacts(with: request)
+                    {
+                        contact, _ in
                         tempContacts.append(contact)
                     }
                     continuation.resume(returning: tempContacts)
-                } catch {
+                }
+                catch
+                {
                     continuation.resume(throwing: error)
                 }
             }
         }
     }
     
-    private func processExport() async {
-        await Task.detached {
-            switch await exportFileType {
+    private func processExport() async
+    {
+        await Task.detached
+        {
+            switch await exportFileType
+            {
             case .commaSeparatedText: await MainActor.run { exportToCSV() }
             case .vCard: await MainActor.run { exportToVCF() }
             case .pdf: await MainActor.run { exportToPDF() }
@@ -170,7 +204,8 @@ struct AdvancedExportView: View
         await MainActor.run { isExporting = true }
     }
     
-    private func exportToCSV() {
+    private func exportToCSV()
+    {
         let csvString = contacts.map { contact in
             [
                 contact.givenName,
@@ -184,7 +219,8 @@ struct AdvancedExportView: View
         exportData = finalString.data(using: .utf8)
     }
     
-    private func exportToVCF() {
+    private func exportToVCF()
+    {
         let vcfString = contacts.map { contact -> String in
             """
             BEGIN:VCARD
@@ -200,11 +236,14 @@ struct AdvancedExportView: View
         exportData = vcfString.data(using: .utf8)
     }
     
-    private func exportToPDF() {
+    private func exportToPDF()
+    {
         let pageRect = CGRect(x: 0, y: 0, width: 595.2, height: 841.8)
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect)
         
-        exportData = renderer.pdfData { context in
+        exportData = renderer.pdfData
+        {
+            context in
             context.beginPage()
             let attributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12)]
             var yPosition: CGFloat = 50
@@ -218,7 +257,8 @@ struct AdvancedExportView: View
             
             yPosition += 20
             
-            for contact in contacts {
+            for contact in contacts
+            {
                 [
                     contact.givenName,
                     contact.familyName,
@@ -240,8 +280,11 @@ struct AdvancedExportView: View
         }
     }
     
-    private func exportToExcel() {
-        let excelString = contacts.map { contact in
+    private func exportToExcel()
+    {
+        let excelString = contacts.map
+        {
+            contact in
             [
                 contact.givenName,
                 contact.familyName,
@@ -265,21 +308,25 @@ struct AdvancedExportView: View
     }
 }
 
-// MARK: - Supporting Types
 
-private enum ContactError: LocalizedError {
+private enum ContactError: LocalizedError
+{
     case accessDenied
     
-    var errorDescription: String? {
-        switch self {
+    var errorDescription: String?
+    {
+        switch self
+        {
         case .accessDenied:
             return "Lütfen ayarlardan kişilere erişime izin verin"
         }
     }
 }
 
-private struct LoadingView: View {
-    var body: some View {
+private struct LoadingView: View
+{
+    var body: some View
+    {
         Color.black.opacity(0.3)
             .ignoresSafeArea()
         ProgressView()
@@ -288,14 +335,18 @@ private struct LoadingView: View {
     }
 }
 
-private struct ExportButton: View {
+private struct ExportButton: View
+{
     let icon: String
     let title: String
     let action: () -> Void
     
-    var body: some View {
-        Button(action: action) {
-            VStack {
+    var body: some View
+    {
+        Button(action: action)
+        {
+            VStack
+            {
                 Image(systemName: icon)
                     .font(.system(size: 30))
                     .foregroundColor(Color.colors.SecondaryTextColor)
@@ -307,4 +358,9 @@ private struct ExportButton: View {
             .cornerRadius(10)
         }
     }
+}
+
+#Preview
+{
+    AdvancedExportView()
 }
