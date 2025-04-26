@@ -32,5 +32,3 @@ SwitchContacts/
 ```
 
 ---
-
-Feel free to customize further as needed!
