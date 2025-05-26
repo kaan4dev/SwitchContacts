@@ -1,4 +1,4 @@
-  # 📱 SwitchContacts 
+   # 📱 SwitchContacts 
 
 A modern iOS app to seamlessly transfer contacts between iOS and Android devices. Built with **SwiftUI**, this app provides an intuitive interface for exporting and importing contacts in common formats.
 
